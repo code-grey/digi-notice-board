@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Digital Notice Board</title>
+  <!-- Bootstrap CSS CDN for visual enhancements -->
+  <link
+    rel="stylesheet"
+    href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+    integrity="sha384-LtrjvnR4Twt/qOuYxKpYhTz1aFQnQnNfYjzQ3PqfW6Vxhc5kxBBhNfq9V8EGxT5E"
+    crossorigin="anonymous"
+  />
+  <style>
+    body {
+      padding-top: 20px;
+      background-color: #f8f9fa;
+    }
+    .announcement {
+      background: #fff;
+      padding: 15px;
+      margin-bottom: 10px;
+      border-radius: 5px;
+      box-shadow: 0 2px 2px rgba(0, 0, 0, 0.1);
+    }
+    .announcement h4 {
+      margin-bottom: 0.5rem;
+    }
+    .announcement small {
+      color: #777;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1 class="mb-4">Digital Notice Board</h1>
+    
+    <!-- Form for creating a new announcement -->
+    <div class="card mb-4">
+      <div class="card-body">
+        <h5 class="card-title">New Announcement</h5>
+        <form id="announcementForm">
+          <div class="form-group">
+            <label for="title">Title</label>
+            <input type="text" id="title" class="form-control" placeholder="Enter title" required />
+          </div>
+          <div class="form-group">
+            <label for="content">Content</label>
+            <textarea id="content" class="form-control" rows="3" placeholder="Enter content" required></textarea>
+          </div>
+          <button type="submit" class="btn btn-primary">Submit Announcement</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Container for displaying announcements -->
+    <h2>Announcements</h2>
+    <div id="announcements"></div>
+  </div>
+
+  <!-- JavaScript Section -->
+  <script>
+    const announcementsContainer = document.getElementById('announcements');
+    const announcementForm = document.getElementById('announcementForm');
+    const titleInput = document.getElementById('title');
+    const contentInput = document.getElementById('content');
+
+    // Create an HTML element for a single announcement
+    function createAnnouncementElement(announcement) {
+      const div = document.createElement('div');
+      div.classList.add('announcement');
+      div.innerHTML = `<h4>${announcement.title}</h4>
+                       <p>${announcement.content}</p>
+                       <small>${new Date(announcement.created_at).toLocaleString()}</small>`;
+      return div;
+    }
+
+    // Fetch announcements from the backend REST endpoint
+    async function fetchAnnouncements() {
+      try {
+        const response = await fetch('/announcements');
+        const announcements = await response.json();
+        announcementsContainer.innerHTML = '';
+        announcements.forEach(announcement => {
+          const element = createAnnouncementElement(announcement);
+          announcementsContainer.appendChild(element);
+        });
+      } catch (error) {
+        console.error('Error fetching announcements:', error);
+      }
+    }
+
+    // Handle form submission to create a new announcement
+    announcementForm.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      const newAnnouncement = {
+        title: titleInput.value,
+        content: contentInput.value
+      };
+
+      try {
+        const response = await fetch('/announcements', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(newAnnouncement)
+        });
+        if (response.ok) {
+          // Clear the form fields after a successful submission
+          titleInput.value = '';
+          contentInput.value = '';
+          // The new announcement will be pushed via WebSocket.
+        }
+      } catch (error) {
+        console.error('Error creating announcement:', error);
+      }
+    });
+
+    // Set up WebSocket connection for real-time updates
+    const wsProtocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
+    const wsUrl = `${wsProtocol}://${window.location.host}/ws`;
+    const socket = new WebSocket(wsUrl);
+
+    socket.addEventListener('open', () => {
+      console.log('WebSocket connected');
+    });
+
+    socket.addEventListener('message', (event) => {
+      const announcement = JSON.parse(event.data);
+      const element = createAnnouncementElement(announcement);
+      // Insert the new announcement at the top of the list
+      announcementsContainer.insertBefore(element, announcementsContainer.firstChild);
+    });
+
+    // Load initial announcements on page load
+    window.addEventListener('load', fetchAnnouncements);
+  </script>
+</body>
+</html>
+
