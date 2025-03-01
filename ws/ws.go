@@ -7,7 +7,7 @@ import (
 	"sync"
 	
 	"github.com/gorilla/websocket"
-	"github.com/code-grey/digi-notice-board/models"
+	"digi-notice-board/models"
 )
 
 var upgrader = websocket.Upgrader{
@@ -20,23 +20,24 @@ type Client struct {
 	Conn *websocket.Conn 
 }
 
-var clients = make(map[*Client]bool)
-var weMutex sync.Mutex
-
-var Broadcast = make(chan models.Announcement)
-
+var (
+	wsMutex sync.Mutex
+	clients = make(map[*Client]bool)
+	Broadcast = make(chan models.Announcement)
+)
 func HandleWebsocket(w http.ResponseWriter, r *http.Request) {
-	ws, err := upgrader.Upgrade(w, r, nil)
+	wsConn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
 		log.Println("WebSocket upgrade error:", err)
+		return
 	}
-	client := &Client{Conn: ws}
 	
+	client := &Client{Conn: wsConn}
 	wsMutex.Lock()
 	clients[client] = true
 	wsMutex.Unlock()
 	
-	log.Println("New WebSOcket client connected")
+	log.Println("New WebSocket client connected")
 	
 	go readMessages(client)
 	
