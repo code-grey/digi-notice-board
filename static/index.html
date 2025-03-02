@@ -2,140 +2,437 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Digital Notice Board</title>
-  <!-- Bootstrap CSS CDN for visual enhancements -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <!-- Bootstrap CSS -->
   <link
     rel="stylesheet"
-    href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
-    integrity="sha384-LtrjvnR4Twt/qOuYxKpYhTz1aFQnQnNfYjzQ3PqfW6Vxhc5kxBBhNfq9V8EGxT5E"
-    crossorigin="anonymous"
+    href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
   />
   <style>
+    /* Custom CSS to make it a bit more friendly */
     body {
-      padding-top: 20px;
       background-color: #f8f9fa;
+      padding-top: 2rem;
+    }
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
     }
     .announcement {
       background: #fff;
+      border-radius: 5px;
+      box-shadow: 0 2px 2px rgba(0,0,0,0.1);
       padding: 15px;
       margin-bottom: 10px;
-      border-radius: 5px;
-      box-shadow: 0 2px 2px rgba(0, 0, 0, 0.1);
     }
-    .announcement h4 {
+    .announcement h5 {
       margin-bottom: 0.5rem;
     }
     .announcement small {
       color: #777;
     }
+    .hidden {
+      display: none !important;
+    }
+    .nav-link.active {
+      font-weight: bold;
+    }
   </style>
 </head>
 <body>
-  <div class="container">
-    <h1 class="mb-4">Digital Notice Board</h1>
-    
-    <!-- Form for creating a new announcement -->
-    <div class="card mb-4">
-      <div class="card-body">
-        <h5 class="card-title">New Announcement</h5>
-        <form id="announcementForm">
-          <div class="form-group">
-            <label for="title">Title</label>
-            <input type="text" id="title" class="form-control" placeholder="Enter title" required />
-          </div>
-          <div class="form-group">
-            <label for="content">Content</label>
-            <textarea id="content" class="form-control" rows="3" placeholder="Enter content" required></textarea>
-          </div>
-          <button type="submit" class="btn btn-primary">Submit Announcement</button>
-        </form>
-      </div>
-    </div>
+<div class="container">
+  <h1 class="mb-4 text-center">Digital Notice Board</h1>
 
-    <!-- Container for displaying announcements -->
-    <h2>Announcements</h2>
+  <!-- Nav Tabs -->
+  <ul class="nav nav-tabs mb-4" id="mainTabs">
+    <li class="nav-item">
+      <a class="nav-link active" id="tab-announcements" href="#announcements-section">Announcements</a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" id="tab-create" href="#create-section">Create Announcement</a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" id="tab-register" href="#register-section">Register</a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" id="tab-login" href="#login-section">Login</a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" id="tab-logout" href="#logout-section">Logout</a>
+    </li>
+  </ul>
+
+  <!-- Announcements Section -->
+  <div id="announcements-section">
+    <h2>All Announcements</h2>
     <div id="announcements"></div>
   </div>
 
-  <!-- JavaScript Section -->
-  <script>
-    const announcementsContainer = document.getElementById('announcements');
-    const announcementForm = document.getElementById('announcementForm');
-    const titleInput = document.getElementById('title');
-    const contentInput = document.getElementById('content');
+  <!-- Create Announcement Section (admin only) -->
+  <div id="create-section" class="hidden">
+    <h2>Create Announcement</h2>
+    <form id="announcementForm">
+      <div class="form-group">
+        <label for="titleInput">Title</label>
+        <input type="text" class="form-control" id="titleInput" placeholder="Enter title" required />
+      </div>
+      <div class="form-group">
+        <label for="contentInput">Content</label>
+        <textarea class="form-control" id="contentInput" rows="3" placeholder="Enter content" required></textarea>
+      </div>
+      <button type="submit" class="btn btn-primary">Submit Announcement</button>
+    </form>
+  </div>
 
-    // Create an HTML element for a single announcement
-    function createAnnouncementElement(announcement) {
-      const div = document.createElement('div');
-      div.classList.add('announcement');
-      div.innerHTML = `<h4>${announcement.title}</h4>
-                       <p>${announcement.content}</p>
-                       <small>${new Date(announcement.created_at).toLocaleString()}</small>`;
-      return div;
+  <!-- Register Section -->
+  <div id="register-section" class="hidden">
+    <h2>Register</h2>
+    <form id="registerForm">
+      <div class="form-group">
+        <label for="registerUsername">Username</label>
+        <input type="text" class="form-control" id="registerUsername" required />
+      </div>
+      <div class="form-group">
+        <label for="registerEmail">Email</label>
+        <input type="email" class="form-control" id="registerEmail" required />
+      </div>
+      <div class="form-group">
+        <label for="registerPassword">Password</label>
+        <input type="password" class="form-control" id="registerPassword" required />
+      </div>
+      <button type="submit" class="btn btn-success">Register</button>
+    </form>
+  </div>
+
+  <!-- Login Section -->
+  <div id="login-section" class="hidden">
+    <h2>Login</h2>
+    <form id="loginForm">
+      <div class="form-group">
+        <label for="loginEmail">Email</label>
+        <input type="email" class="form-control" id="loginEmail" required />
+      </div>
+      <div class="form-group">
+        <label for="loginPassword">Password</label>
+        <input type="password" class="form-control" id="loginPassword" required />
+      </div>
+      <button type="submit" class="btn btn-primary">Login</button>
+    </form>
+  </div>
+
+  <!-- Logout Section -->
+  <div id="logout-section" class="hidden">
+    <h2>Logout</h2>
+    <p>You are currently logged in. <button id="logoutBtn" class="btn btn-danger">Logout</button></p>
+  </div>
+
+</div>
+
+<!-- jQuery, Popper.js, Bootstrap JS -->
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script
+  src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.min.js"
+></script>
+
+<script>
+  // Global variables
+  let token = null;
+  let userRole = null;
+
+  // Helper function: decode JWT to get role
+  function decodeJWT(token) {
+    // Basic parse of JWT: header.payload.signature
+    const parts = token.split('.');
+    if (parts.length !== 3) return null;
+    try {
+      const payload = JSON.parse(atob(parts[1])); // decode base64
+      return payload; // e.g., { user_id: 1, role: "admin", exp: 1234567890 }
+    } catch (e) {
+      console.error("Error decoding token:", e);
+      return null;
+    }
+  }
+
+  // Switch visible section
+  function showSection(sectionId) {
+    const sections = [
+      "announcements-section",
+      "create-section",
+      "register-section",
+      "login-section",
+      "logout-section",
+    ];
+    sections.forEach((sec) => {
+      document.getElementById(sec).classList.add("hidden");
+    });
+    document.getElementById(sectionId).classList.remove("hidden");
+  }
+
+  // Switch active tab
+  function setActiveTab(tabId) {
+    const tabs = [
+      "tab-announcements",
+      "tab-create",
+      "tab-register",
+      "tab-login",
+      "tab-logout",
+    ];
+    tabs.forEach((t) => {
+      document.getElementById(t).classList.remove("active");
+    });
+    document.getElementById(tabId).classList.add("active");
+  }
+
+  // Update UI based on login state and role
+  function updateUI() {
+    // If token is present, user is considered "logged in"
+    if (token) {
+      document.getElementById("tab-login").style.display = "none";
+      document.getElementById("tab-register").style.display = "none";
+      document.getElementById("tab-logout").style.display = "block";
+
+      // If user is admin, show create tab
+      if (userRole === "admin") {
+        document.getElementById("tab-create").style.display = "block";
+      } else {
+        document.getElementById("tab-create").style.display = "none";
+      }
+    } else {
+      // Not logged in
+      document.getElementById("tab-login").style.display = "block";
+      document.getElementById("tab-register").style.display = "block";
+      document.getElementById("tab-logout").style.display = "none";
+      document.getElementById("tab-create").style.display = "none";
+    }
+  }
+
+  // ------------------------------------------------------------
+  // Announcements Logic
+  // ------------------------------------------------------------
+  const announcementsContainer = document.getElementById("announcements");
+
+  function createAnnouncementElement(announcement) {
+    const div = document.createElement("div");
+    div.classList.add("announcement");
+    div.innerHTML = `
+      <h5>${announcement.title}</h5>
+      <p>${announcement.content}</p>
+      <small>${new Date(announcement.created_at).toLocaleString()}</small>
+    `;
+    return div;
+  }
+
+  async function fetchAnnouncements() {
+    try {
+      const response = await fetch("/announcements");
+      if (!response.ok) throw new Error("Failed to fetch announcements");
+      const data = await response.json();
+      announcementsContainer.innerHTML = "";
+      data.forEach((ann) => {
+        announcementsContainer.appendChild(createAnnouncementElement(ann));
+      });
+    } catch (error) {
+      console.error("Error fetching announcements:", error);
+    }
+  }
+
+  // Create new announcement (admin only)
+  const announcementForm = document.getElementById("announcementForm");
+  announcementForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    if (!token || userRole !== "admin") {
+      alert("Only admins can create announcements!");
+      return;
     }
 
-    // Fetch announcements from the backend REST endpoint
-    async function fetchAnnouncements() {
-      try {
-        const response = await fetch('/announcements');
-        const announcements = await response.json();
-        announcementsContainer.innerHTML = '';
-        announcements.forEach(announcement => {
-          const element = createAnnouncementElement(announcement);
-          announcementsContainer.appendChild(element);
-        });
-      } catch (error) {
-        console.error('Error fetching announcements:', error);
+    const newAnnouncement = {
+      title: document.getElementById("titleInput").value,
+      content: document.getElementById("contentInput").value,
+    };
+
+    try {
+      const response = await fetch("/announcements", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`
+        },
+        body: JSON.stringify(newAnnouncement),
+      });
+      if (!response.ok) {
+        throw new Error("Failed to create announcement");
       }
+      // Clear form
+      document.getElementById("titleInput").value = "";
+      document.getElementById("contentInput").value = "";
+      // The new announcement will arrive via WebSocket or we can re-fetch
+      fetchAnnouncements();
+      alert("Announcement created!");
+    } catch (error) {
+      console.error("Error creating announcement:", error);
+      alert("Error creating announcement");
     }
+  });
 
-    // Handle form submission to create a new announcement
-    announcementForm.addEventListener('submit', async (event) => {
-      event.preventDefault();
-      const newAnnouncement = {
-        title: titleInput.value,
-        content: contentInput.value
-      };
+  // ------------------------------------------------------------
+  // WebSocket for real-time announcements
+  // ------------------------------------------------------------
+  const wsProtocol = window.location.protocol === "https:" ? "wss:" : "ws:";
+  const wsUrl = `${wsProtocol}//${window.location.host}/ws`;
+  const socket = new WebSocket(wsUrl);
 
-      try {
-        const response = await fetch('/announcements', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify(newAnnouncement)
-        });
-        if (response.ok) {
-          // Clear the form fields after a successful submission
-          titleInput.value = '';
-          contentInput.value = '';
-          // The new announcement will be pushed via WebSocket.
-        }
-      } catch (error) {
-        console.error('Error creating announcement:', error);
+  socket.addEventListener("open", () => {
+    console.log("WebSocket connected");
+  });
+
+  socket.addEventListener("message", (event) => {
+    // A new or updated announcement is broadcast
+    const announcement = JSON.parse(event.data);
+    // Insert it at the top
+    announcementsContainer.prepend(createAnnouncementElement(announcement));
+  });
+
+  // ------------------------------------------------------------
+  // Registration Logic
+  // ------------------------------------------------------------
+  const registerForm = document.getElementById("registerForm");
+  registerForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const userData = {
+      username: document.getElementById("registerUsername").value,
+      email: document.getElementById("registerEmail").value,
+      password: document.getElementById("registerPassword").value,
+    };
+    try {
+      const response = await fetch("/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(userData),
+      });
+      if (!response.ok) {
+        throw new Error("Registration failed");
       }
-    });
+      alert("Registration successful! You can now log in.");
+      // Clear form
+      registerForm.reset();
+      // Switch to login tab
+      setActiveTab("tab-login");
+      showSection("login-section");
+    } catch (error) {
+      console.error("Error registering user:", error);
+      alert("Error registering user");
+    }
+  });
 
-    // Set up WebSocket connection for real-time updates
-    const wsProtocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
-    const wsUrl = `${wsProtocol}://${window.location.host}/ws`;
-    const socket = new WebSocket(wsUrl);
+  // ------------------------------------------------------------
+  // Login Logic
+  // ------------------------------------------------------------
+  const loginForm = document.getElementById("loginForm");
+  loginForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const creds = {
+      email: document.getElementById("loginEmail").value,
+      password: document.getElementById("loginPassword").value,
+    };
+    try {
+      const response = await fetch("/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(creds),
+      });
+      if (!response.ok) {
+        throw new Error("Login failed");
+      }
+      const data = await response.json();
+      token = data.token;
+      // Decode JWT to get role
+      const decoded = decodeJWT(token);
+      userRole = decoded?.role || null;
 
-    socket.addEventListener('open', () => {
-      console.log('WebSocket connected');
-    });
+      // Store token in localStorage (optional)
+      localStorage.setItem("jwtToken", token);
 
-    socket.addEventListener('message', (event) => {
-      const announcement = JSON.parse(event.data);
-      const element = createAnnouncementElement(announcement);
-      // Insert the new announcement at the top of the list
-      announcementsContainer.insertBefore(element, announcementsContainer.firstChild);
-    });
+      alert("Login successful!");
+      // Clear form
+      loginForm.reset();
+      // Update UI
+      updateUI();
+      setActiveTab("tab-announcements");
+      showSection("announcements-section");
+    } catch (error) {
+      console.error("Error logging in:", error);
+      alert("Error logging in");
+    }
+  });
 
-    // Load initial announcements on page load
-    window.addEventListener('load', fetchAnnouncements);
-  </script>
+  // ------------------------------------------------------------
+  // Logout Logic
+  // ------------------------------------------------------------
+  const logoutBtn = document.getElementById("logoutBtn");
+  logoutBtn.addEventListener("click", () => {
+    token = null;
+    userRole = null;
+    localStorage.removeItem("jwtToken");
+    alert("Logged out");
+    updateUI();
+    setActiveTab("tab-announcements");
+    showSection("announcements-section");
+  });
+
+  // ------------------------------------------------------------
+  // Tab Navigation
+  // ------------------------------------------------------------
+  document.getElementById("tab-announcements").addEventListener("click", (e) => {
+    e.preventDefault();
+    setActiveTab("tab-announcements");
+    showSection("announcements-section");
+  });
+  document.getElementById("tab-create").addEventListener("click", (e) => {
+    e.preventDefault();
+    if (userRole === "admin") {
+      setActiveTab("tab-create");
+      showSection("create-section");
+    } else {
+      alert("Only admins can create announcements");
+    }
+  });
+  document.getElementById("tab-register").addEventListener("click", (e) => {
+    e.preventDefault();
+    setActiveTab("tab-register");
+    showSection("register-section");
+  });
+  document.getElementById("tab-login").addEventListener("click", (e) => {
+    e.preventDefault();
+    setActiveTab("tab-login");
+    showSection("login-section");
+  });
+  document.getElementById("tab-logout").addEventListener("click", (e) => {
+    e.preventDefault();
+    setActiveTab("tab-logout");
+    showSection("logout-section");
+  });
+
+  // ------------------------------------------------------------
+  // On Page Load
+  // ------------------------------------------------------------
+  // If there's a token in localStorage, restore it
+  const savedToken = localStorage.getItem("jwtToken");
+  if (savedToken) {
+    token = savedToken;
+    const decoded = decodeJWT(token);
+    userRole = decoded?.role || null;
+  }
+
+  // Update UI
+  updateUI();
+
+  // Fetch announcements
+  fetchAnnouncements();
+  // Show announcements by default
+  showSection("announcements-section");
+  setActiveTab("tab-announcements");
+</script>
 </body>
 </html>
 

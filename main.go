@@ -31,9 +31,16 @@ func main() {
     // WebSocket endpoint
     router.HandleFunc("/ws", ws.HandleWebsocket)
     
+    //auth endpoints
+    
+    router.HandleFunc("/register", handlers.Register).Methods("POST")
+    router.HandleFunc("/login", handlers.Login).Methods("POST")
+    
 	router.PathPrefix("/static/").Handler(
 	    http.StripPrefix("/static/", http.FileServer(http.Dir("./static"))),
-	)
+	    )
+	log.Println("Listening on :8080...")
+    log.Fatal(http.ListenAndServe(":8080", router))
 
 
 

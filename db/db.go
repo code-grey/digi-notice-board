@@ -36,9 +36,14 @@ func Connect() {
     }
 
 	DB.AutoMigrate(&models.Announcement{})
+	DB.AutoMigrate(&models.User{})
 
 	if err := DB.AutoMigrate(&models.Announcement{}); err != nil {
         log.Fatal("Failed to auto-migrate:", err)
+    }
+	
+	if err := DB.AutoMigrate(&models.User{}); err != nil {
+        log.Fatal("Failed to auto-migrate Users:", err)
     }
 	
     /* If you want to auto-migrate models, e.g.:
